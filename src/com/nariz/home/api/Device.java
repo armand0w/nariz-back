@@ -16,10 +16,16 @@ import com.nariz.home.controllers.DeviceController;
 
 @RESTController("/device")
 public class Device {
-    @RESTMethod(path="/action", method= MethodType.POST, contentType=ContentType.APPLICATION_JSON, produces=ContentType.APPLICATION_JSON, producesCharset=CharsetType.UTF_8)
+    @RESTMethod(path="/action", method=MethodType.POST, contentType=ContentType.APPLICATION_JSON, produces=ContentType.APPLICATION_JSON, producesCharset=CharsetType.UTF_8)
     public JSONObject deviceAction(@RESTContentParam(ContentParamType.JSON) JSONObject device) throws OperationExecutionException, AuthorizationException {
         DeviceController controller = new DeviceController();
         return controller.device(device);
+    }
+
+    @RESTMethod(path="/{mac}", method=MethodType.GET, contentType=ContentType.APPLICATION_JSON, produces=ContentType.APPLICATION_JSON, producesCharset=CharsetType.UTF_8)
+    public JSONObject device(@RESTPathParam("mac") String mac) throws OperationExecutionException, AuthorizationException {
+        DeviceController controller = new DeviceController();
+        return controller.get(mac);
     }
 
     @RESTMethod(path="/list/{home}", method=MethodType.GET, contentType=ContentType.APPLICATION_JSON, produces=ContentType.APPLICATION_JSON, producesCharset=CharsetType.UTF_8)

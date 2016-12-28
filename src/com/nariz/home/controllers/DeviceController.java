@@ -49,7 +49,7 @@ public class DeviceController
     {
         JSONObject jsonObject = new JSONObject();
         try {
-            String query = "SELECT v_id_home AS 'home', v_ip AS 'ip', v_mac AS 'mac', v_name AS 'name', v_connect AS 'isConnect', d_last_update AS 'lastUpdate', v_hostname AS 'hostname' FROM device WHERE v_id_home = ? ";
+            String query = "SELECT v_id_home AS 'p_id_home', v_ip AS 'p_ip', v_mac AS 'p_mac', v_name AS 'p_name', v_connect AS 'p_connect', v_hostname AS 'p_hostname' FROM device WHERE v_id_home = ? ";
 
             JSONObject param = new JSONObject();
             JSONObject params = new JSONObject();
@@ -82,24 +82,54 @@ public class DeviceController
         return jsonObject;
     }
 
+    public JSONObject get(@NotNull String mac) throws OperationExecutionException
+    {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            String query = "SELECT v_id_home AS 'p_id_home', v_ip AS 'p_ip', v_mac AS 'p_mac', v_name AS 'p_name', v_connect AS 'p_connect', v_hostname AS 'p_hostname' FROM device WHERE v_mac = ? ";
+
+            JSONObject param = new JSONObject();
+            JSONObject params = new JSONObject();
+
+            try
+            {
+                params.resetArray();
+                param = new JSONObject();
+                param.addPair("type", "string");
+                param.addPair("value", mac);
+                params.addToArray(param);
+
+                params.saveArray("parameters");
+            }
+            catch (Exception e)
+            {
+                ServletContextListener.LOGGER.error("Parametros No Validos");
+                ServletContextListener.LOGGER.error(this.getClass().getName(), e);
+                throw new OperationExecutionException("Parametros No Validos");
+            }
+
+            jsonObject = ServletContextListener.mySQL.executeQuery(query, params);
+        }
+        catch (Exception e)
+        {
+            ServletContextListener.LOGGER.error(this.getClass().getName(), e);
+            throw new OperationExecutionException( e.getMessage().replaceAll("\n", "").replaceAll("\"", "") );
+        }
+
+        return jsonObject;
+    }
+
     public static void changeStatus(@NotNull String device) throws OperationExecutionException
     {
         try
         {
             JSONObject json = new JSONObject( JSON.parse(device) );
-            String connect = String.valueOf( !Boolean.parseBoolean(Utils.getJSONValue(json, "/isConnect")) );
-            JSONObject aux = new JSONObject();
-            aux.addPair("p_mac", Utils.getJSONValue(json, "/mac"));
-            aux.addPair("p_id_home", Utils.getJSONValue(json, "/home"));
-            aux.addPair("p_name", Utils.getJSONValue(json, "/name"));
-            aux.addPair("p_ip", Utils.getJSONValue(json, "/ip"));
-            aux.addPair("p_hostname", Utils.getJSONValue(json, "/hostname"));
-            aux.addPair("p_connect", connect);
-            aux.addPair("accion", "EDIT");
+            String connect = String.valueOf( !Boolean.parseBoolean(Utils.getJSONValue(json, "/p_connect")) );
+            json.addPair("accion", "EDIT");
 
             DeviceController deviceController = new DeviceController();
-            deviceController.device(aux);
-            Utils.notifyPush(Utils.getJSONValue(aux, "p_name"), connect);
+            deviceController.device(json);
+            Utils.notifyPush(Utils.getJSONValue(json, "p_name"), connect);
         }
         catch (Exception e)
         {

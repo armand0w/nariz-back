@@ -109,7 +109,6 @@ public class Utils
 		String home = Utils.getJSONValue(Utils.appProperties, "/home");
 		int n = 0;
 
-		DeviceController dc = new DeviceController();
 		UserController uc = new UserController();
 
 		idDevices = Utils.getJsonObject( uc.list(home), "/data", "idDevices");
@@ -118,6 +117,7 @@ public class Utils
 		notification.addPair("title", name);
 		notification.addPair("body", "Se " + (status.equals("true") ? "Conecto" : "Desconecto"));
 		request.addPair("notification", notification);
+		request.addPair("priority", "high");
 
 		for( int i=0; i<n; i++ )
 		{

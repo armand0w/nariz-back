@@ -35,7 +35,8 @@ public class Presence
                 String isCon = null;
                 String aux = null;
                 String mac = "";
-                Integer n = 0;
+                int n = 0;
+                int times = Utils.getJSONValueInteger(Utils.appProperties, "/times");
 
                 jsonObject = Utils.getJsonObject( dc.list(Utils.getJSONValue(Utils.appProperties, "/home")), "/data", "devices");
                 n = JPATH.count(jsonObject, "devices");
@@ -65,8 +66,8 @@ public class Presence
 
                 for (int i=0; i<n; i++)
                 {
-                    mac = Utils.getJSONValue(jsonObject, "/devices[" + i + "]/mac");
-                    isCon = Utils.getJSONValue(jsonObject, "/devices[" + i + "]/isConnect");
+                    mac = Utils.getJSONValue(jsonObject, "/devices[" + i + "]/p_mac");
+                    isCon = Utils.getJSONValue(jsonObject, "/devices[" + i + "]/p_onnect");
 
                     if( !isCon.equals( String.valueOf(adress.contains(mac)) ) )
                     {
@@ -80,7 +81,8 @@ public class Presence
             }
         };
 
-        beeperHandle = scheduler.scheduleAtFixedRate( db, 0, 60, TimeUnit.SECONDS );
+        beeperHandle = scheduler.scheduleAtFixedRate( db, 0,
+                Long.parseLong(Utils.getJSONValue(Utils.appProperties, "/time")), TimeUnit.SECONDS );
         scheduler.schedule( () -> beeperHandle.cancel(true), 99, TimeUnit.DAYS );
     }
 
