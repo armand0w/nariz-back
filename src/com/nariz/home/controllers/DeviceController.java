@@ -1,13 +1,12 @@
 package com.nariz.home.controllers;
 
-import com.caronte.db.MySQL;
+import com.caronte.jpath.JPATH;
 import com.caronte.json.JSON;
 import com.caronte.json.JSONObject;
 import com.caronte.rest.exceptions.OperationExecutionException;
 import com.nariz.home.listeners.ServletContextListener;
 import com.nariz.home.utils.Utils;
 import com.sun.istack.internal.NotNull;
-import org.apache.log4j.Logger;
 
 /**
  * Created by armando.castillo on 06/09/2016.
@@ -125,10 +124,14 @@ public class DeviceController
         {
             JSONObject json = new JSONObject( JSON.parse(device) );
             String connect = String.valueOf( !Boolean.parseBoolean(Utils.getJSONValue(json, "/p_connect")) );
+            JSONObject res = null;
             json.addPair("accion", "EDIT");
+            JPATH.remove(json, "/p_connect");
+            json.addPair("p_connect", connect);
 
             DeviceController deviceController = new DeviceController();
-            deviceController.device(json);
+            res = deviceController.device(json);
+
             Utils.notifyPush(Utils.getJSONValue(json, "p_name"), connect);
         }
         catch (Exception e)

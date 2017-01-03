@@ -6,7 +6,6 @@ import com.caronte.rest.exceptions.OperationExecutionException;
 import com.nariz.home.controllers.DeviceController;
 import com.nariz.home.listeners.ServletContextListener;
 import com.nariz.home.utils.Utils;
-import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -36,12 +35,12 @@ public class Presence
                 String aux = null;
                 String mac = "";
                 int n = 0;
-                int times = Utils.getJSONValueInteger(Utils.appProperties, "/times");
+                int times = Integer.parseInt( Utils.getJSONValue(Utils.appProperties, "/times") );
 
                 jsonObject = Utils.getJsonObject( dc.list(Utils.getJSONValue(Utils.appProperties, "/home")), "/data", "devices");
                 n = JPATH.count(jsonObject, "devices");
 
-                for(int i=0; i<10; i++)
+                for(int i=0; i<times; i++)
                 {
                     process = Runtime.getRuntime().exec( "sudo arp-scan -l" );
                     BufferedReader reader = new BufferedReader( new InputStreamReader(process.getInputStream()) );
@@ -58,7 +57,7 @@ public class Presence
 
                 /*adress = "Interface: eth0, datalink type: EN10MB (Ethernet)\n" +
                         "Starting arp-scan 1.8.1 with 256 hosts (http://www.nta-monitor.com/tools/arp-scan/)\n" +
-                        "192.168.0.12\te8:ed:05:0b:8c:05\t(Unknown)\n" +
+                        "192.168.0.12\tdc:e8:38:23:06:8c\t(Unknown)\n" +
                         "192.168.0.6\te4:90:7e:6e:09:88\t(Unknown)\n" +
                         "\n" +
                         "2 packets received by filter, 0 packets dropped by kernel\n" +
@@ -67,7 +66,7 @@ public class Presence
                 for (int i=0; i<n; i++)
                 {
                     mac = Utils.getJSONValue(jsonObject, "/devices[" + i + "]/p_mac");
-                    isCon = Utils.getJSONValue(jsonObject, "/devices[" + i + "]/p_onnect");
+                    isCon = Utils.getJSONValue(jsonObject, "/devices[" + i + "]/p_connect");
 
                     if( !isCon.equals( String.valueOf(adress.contains(mac)) ) )
                     {
